@@ -1,0 +1,267 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: catalog-service
+  
+  # Database Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bytebazar_catalog
+    username: bytebazar
+    password: bytebazar123
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+      leak-detection-threshold: 60000
+
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          batch_size: 25
+        order_inserts: true
+        order_updates: true
+        jdbc.batch_versioned_data: true
+    open-in-view: false
+
+  # Flyway Configuration
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    schemas: public
+
+  # Redis Configuration
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 1
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 20
+          max-idle: 8
+          min-idle: 2
+          max-wait: 2000ms
+
+  # Cache Configuration
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000  # 10 minutes default TTL
+      cache-null-values: false
+      key-prefix: "catalog:"
+      use-key-prefix: true
+
+  # Security Configuration
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8082
+          jwk-set-uri: http://localhost:8082/oauth2/jwks
+
+  # Jackson Configuration
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+      indent-output: true
+    deserialization:
+      fail-on-unknown-properties: false
+    default-property-inclusion: NON_NULL
+
+# Management and Monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when_authorized
+    metrics:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5, 0.9, 0.95, 0.99
+
+# Logging Configuration
+logging:
+  level:
+    com.byteBazar.catalog: INFO
+    org.springframework.security: WARN
+    org.springframework.web: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql.BasicBinder: WARN
+    org.springframework.cache: DEBUG
+    org.springframework.data.redis: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# SpringDoc OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  info:
+    title: ByteBazar Catalog Service API
+    description: Comprehensive product catalog management with advanced search and caching
+    version: 1.0.0
+    contact:
+      name: ByteBazar Team
+      url: https://bytebazar.com
+      email: support@bytebazar.com
+
+# Custom Application Configuration
+catalog:
+  cache:
+    # Cache TTL settings (in seconds)
+    categories:
+      ttl: 3600  # 1 hour
+      evict-on-update: true
+    products:
+      ttl: 1800  # 30 minutes
+      evict-on-update: true
+    search-results:
+      ttl: 600   # 10 minutes
+    product-analytics:
+      ttl: 7200  # 2 hours
+  
+  search:
+    # Search configuration
+    max-results: 1000
+    default-page-size: 20
+    max-page-size: 100
+    enable-fuzzy-search: true
+    
+  inventory:
+    # Inventory thresholds
+    default-low-stock-threshold: 5
+    enable-backorder-by-default: false
+    track-inventory-by-default: true
+    
+  images:
+    # Image handling
+    max-images-per-product: 10
+    allowed-formats: jpg,jpeg,png,webp,gif
+    max-file-size: 5242880  # 5MB
+
+---
+# Development Profile
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  # Development Database
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bytebazar_catalog_dev
+    
+  # Show SQL in development
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+# Development logging
+logging:
+  level:
+    com.byteBazar.catalog: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+---
+# Test Profile
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  # Test Database (H2 in-memory)
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+    
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+    
+  # Disable Redis for tests
+  data:
+    redis:
+      host: localhost
+      port: 6370  # Different port for test Redis if needed
+      
+  cache:
+    type: simple  # Use simple cache for tests
+
+---
+# Production Profile
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  # Production Database
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/bytebazar_catalog}
+    username: ${DATABASE_USERNAME:bytebazar}
+    password: ${DATABASE_PASSWORD:bytebazar123}
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 10
+
+  # Redis Configuration for Production
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DATABASE:1}
+
+  # Security
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OAUTH2_ISSUER_URI:http://localhost:8082}
+          jwk-set-uri: ${OAUTH2_JWK_SET_URI:http://localhost:8082/oauth2/jwks}
+
+# Production logging
+logging:
+  level:
+    com.byteBazar.catalog: INFO
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN
+  file:
+    name: logs/catalog-service.log
+    max-size: 10MB
+    max-history: 30

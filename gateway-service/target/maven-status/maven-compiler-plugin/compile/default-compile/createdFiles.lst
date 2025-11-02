@@ -1,0 +1,3 @@
+com\byteBazar\gateway\GatewayApplication.class
+com\byteBazar\gateway\config\CorsConfig.class
+com\byteBazar\gateway\config\SecurityConfig.class
