@@ -299,26 +299,3 @@ byteBazar/
 4. Create REST controllers with validation
 5. Add integration tests
 6. Update API documentation
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
-
-## 📞 Support
-
-For support and questions:
-- Create GitHub issues for bugs
-- Check documentation and API specs
-- Review logs and health endpoints
-
----
-
-**ByteBazar** - Production-ready microservices e-commerce platform with Spring Boot, OAuth2, and cloud-native architecture.
