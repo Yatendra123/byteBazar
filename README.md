@@ -1,6 +1,6 @@
 # ByteBazar - Microservices E-Commerce Platform
 
-ByteBazar is a production-ready, cloud-native e-commerce platform built with Spring Boot microservices architecture. It provides comprehensive functionality for managing customers, products, orders, and payments with full OAuth2 security, event-driven communication, and observability.
+ByteBazar is a production-oriented, cloud-native e-commerce platform built with Spring Boot microservices architecture. It provides comprehensive functionality for managing customers, products, orders, and payments with full OAuth2 security, event-driven communication, and observability.
 
 ## 🏗️ Architecture Overview
 
@@ -246,7 +246,7 @@ docker-compose -f docker-compose.prod.yml up -d
 **Database Configuration:**
 - `POSTGRES_DB=bytebazar`
 - `POSTGRES_USER=admin`
-- `POSTGRES_PASSWORD=admin123`
+- `POSTGRES_PASSWORD=<set local>`
 
 **Redis Configuration:**
 - `REDIS_HOST=localhost`
